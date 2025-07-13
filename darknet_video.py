@@ -54,7 +54,7 @@ def check_arguments_errors(args):
 
 
 def set_saved_video(input_video, output_video, size):
-    fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+    fourcc = cv2.VideoWriter_fourcc(*"FMP4")
     fps = int(input_video.get(cv2.CAP_PROP_FPS))
     video = cv2.VideoWriter(output_video, fourcc, fps, size)
     return video
@@ -104,7 +104,6 @@ def convert4cropping(image, bbox):
 
     return bbox_cropping
 
-
 def video_capture(frame_queue, darknet_image_queue):
     while cap.isOpened():
         ret, frame = cap.read()
@@ -119,7 +118,6 @@ def video_capture(frame_queue, darknet_image_queue):
         darknet_image_queue.put(img_for_detect)
     cap.release()
 
-
 def inference(darknet_image_queue, detections_queue, fps_queue):
     while cap.isOpened():
         darknet_image = darknet_image_queue.get()
@@ -132,7 +130,6 @@ def inference(darknet_image_queue, detections_queue, fps_queue):
         darknet.print_detections(detections, args.ext_output)
         darknet.free_image(darknet_image)
     cap.release()
-
 
 def drawing(frame_queue, detections_queue, fps_queue):
     random.seed(3)  # deterministic bbox colors
@@ -153,10 +150,14 @@ def drawing(frame_queue, detections_queue, fps_queue):
                 video.write(image)
             if cv2.waitKey(fps) == 27:
                 break
+
     cap.release()
     video.release()
     cv2.destroyAllWindows()
-
+    # empty queues to unblock last task
+    frame = frame_queue.get()
+    detections = detections_queue.get()
+    fps = fps_queue.get()
 
 if __name__ == '__main__':
     frame_queue = Queue()

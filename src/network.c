@@ -280,6 +280,23 @@ void forward_network(network net, network_state state)
         l.forward(l, state);
         //printf("%d - Predicted in %lf milli-seconds.\n", i, ((double)get_time_point() - time) / 1000);
         state.input = l.output;
+        {
+            char str[256];
+            FILE *fp;
+            if ((i == 36) || (i==29)) {
+                snprintf(str, 255,"layer-%d-%d-%d.dat", i, l.type, l.activation);
+                printf("layer %d type %d activation %d size %d\n", i, l.type, l.activation, l.outputs * l.batch);
+                fp = fopen(str, "w+b");
+                if (fp) {
+                    size_t res;
+                    res = fwrite(l.output, sizeof(float), (l.outputs * l.batch), fp);
+                    fclose(fp);
+                    if (res != (l.outputs * l.batch)) {
+                        printf("write failed\n");
+                    }
+                }
+            }
+        }
 
         /*
         float avg_val = 0;

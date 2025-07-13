@@ -175,7 +175,7 @@ def save_annotations(name, image, detections, class_names):
 def batch_detection_example():
     args = parser()
     check_arguments_errors(args)
-    batch_size = 3
+    batch_size = 6
     random.seed(3)  # deterministic bbox colors
     network, class_names, class_colors = darknet.load_network(
         args.config_file,
@@ -183,12 +183,15 @@ def batch_detection_example():
         args.weights,
         batch_size=batch_size
     )
-    image_names = ['data/horses.jpg', 'data/horses.jpg', 'data/eagle.jpg']
+    #image_names = ['data/horses.jpg', 'data/horses.jpg', 'data/eagle.jpg']
+    image_names = ['data/messi/messi-020.png', 'data/messi/messi-021.png',
+                   'data/messi/messi-022.png', 'data/messi/messi-023.png',
+                   'data/messi/messi-024.png', 'data/messi/messi-025.png']
     images = [cv2.imread(image) for image in image_names]
     images, detections,  = batch_detection(network, images, class_names,
                                            class_colors, batch_size=batch_size)
     for name, image in zip(image_names, images):
-        cv2.imwrite(name.replace("data/", ""), image)
+        cv2.imwrite(name.replace("data/", "out/"), image)
     print(detections)
 
 
@@ -225,6 +228,7 @@ def main():
         fps = int(1/(time.time() - prev_time))
         print("FPS: {}".format(fps))
         if not args.dont_show:
+            print("Press SPACE to advance to the next image...")
             cv2.imshow('Inference', image)
             if cv2.waitKey() & 0xFF == ord('q'):
                 break
